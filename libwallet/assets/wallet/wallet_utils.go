@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"context"
+	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
 	"net"
@@ -20,6 +21,7 @@ import (
 	"github.com/kevinburke/nacl/secretbox"
 	ltchdkeychain "github.com/ltcsuite/ltcd/ltcutil/hdkeychain"
 	"github.com/tyler-smith/go-bip39"
+	"golang.org/x/crypto/pbkdf2"
 	"golang.org/x/crypto/scrypt"
 )
 
@@ -246,7 +248,8 @@ func DecodeSeedMnemonic(seedMnemonic string, assetType utils.AssetType, seedType
 		if seedType == WordSeed33 {
 			hashedSeed, err = walletseed.DecodeUserInput(seedMnemonic)
 		} else {
-			hashedSeed, err = bip39.EntropyFromMnemonic(seedMnemonic)
+			fmt.Println("using the one in utils ***************")
+			hashedSeed = pbkdf2.Key([]byte(seedMnemonic), []byte("mnemonic"), 2048, 64, sha512.New)
 		}
 	default:
 		err = fmt.Errorf("%v: (%v)", utils.ErrAssetUnknown, assetType)

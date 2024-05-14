@@ -2,13 +2,15 @@ package libwallet
 
 import (
 	"context"
+	"crypto/sha512"
+	"fmt"
 
 	"decred.org/dcrwallet/v3/errors"
 	"decred.org/dcrwallet/v3/walletseed"
+	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/decred/dcrd/chaincfg/v3"
 	"github.com/decred/dcrd/hdkeychain/v3"
-	"github.com/tyler-smith/go-bip39"
 
 	"github.com/crypto-power/cryptopower/libwallet/assets/dcr"
 	sharedW "github.com/crypto-power/cryptopower/libwallet/assets/wallet"
@@ -158,7 +160,8 @@ func deriveBIP44AccountXPubsForDCR(seedMnemonic string, wordSeedType sharedW.Wor
 	if wordSeedType == sharedW.WordSeed33 {
 		seed, err = walletseed.DecodeUserInput(seedMnemonic)
 	} else {
-		seed, err = bip39.EntropyFromMnemonic(seedMnemonic)
+		fmt.Println("using the one in dcr ***************")
+		seed = pbkdf2.Key([]byte(seedMnemonic), []byte("mnemonic"), 2048, 64, sha512.New)
 	}
 	if err != nil {
 		return "", "", err

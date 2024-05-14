@@ -3,6 +3,7 @@ package components
 import (
 	"context"
 	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
 	"image/color"
@@ -12,6 +13,7 @@ import (
 	"decred.org/dcrwallet/v3/pgpwordlist"
 	"gioui.org/layout"
 	"gioui.org/unit"
+	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/btcsuite/btcd/btcutil"
 	sharedW "github.com/crypto-power/cryptopower/libwallet/assets/wallet"
@@ -21,7 +23,6 @@ import (
 	"github.com/crypto-power/cryptopower/ui/values"
 	"github.com/decred/dcrd/dcrutil/v4"
 	"github.com/ltcsuite/ltcd/ltcutil"
-	"github.com/tyler-smith/go-bip39"
 )
 
 const (
@@ -80,7 +81,9 @@ func SeedWordsToHex(seedWords string, wordSeedType sharedW.WordSeedType) (string
 			return seedHex, fmt.Errorf("invalid seed bytes length")
 		}
 	} else {
-		seedByte, err = bip39.EntropyFromMnemonic(seedWords)
+		fmt.Println("using the one in ui ***************")
+		seedByte = pbkdf2.Key([]byte(seedWords), []byte("mnemonic"), 2048, 64, sha512.New)
+		// seedByte, err = bip39.EntropyFromMnemonic(seedWords)
 	}
 
 	if err != nil {
